@@ -1,0 +1,32 @@
+{
+  "name": "github-label-sync",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sync GitHub repository labels from a canonical source repo to multiple targets.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "bin": {
+    "gh-label-sync": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/postbuild.cjs",
+    "start": "node dist/index.js",
+    "sync": "npm run build --silent && node dist/index.js sync",
+    "export": "npm run build --silent && node dist/index.js export",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@octokit/rest": "^19.0.13",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "yaml": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.3"
+  }
+}

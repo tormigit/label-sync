@@ -1,0 +1,21 @@
+source:
+  owner: tormigit
+  repo: label-sync
+
+targets:
+  - owner: tormigit
+    repo: seljeDrive-Google-Drive-Connector-for-WordPress
+  - owner: tormigit
+    repo: seljeEmail-Contract-Hub
+  - owner: tormigit
+    repo: seljeDashboard
+  - owner: tormigit
+    repo: seljetowebp
+  - owner: tormigit
+    repo: sMetaReporter
+  - owner: tormigit
+    repo: wp_seljevisitorsflags
+
+options:
+  deleteExtraLabels: true
+  allowEmptySource: false

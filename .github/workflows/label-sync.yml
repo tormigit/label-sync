@@ -1,0 +1,37 @@
+name: Label Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Apply changes (true) or run dry-run (false)"
+        required: true
+        default: "false"
+  schedule:
+    - cron: "0 3 * * 0"
+
+permissions:
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Sync labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.LABEL_SYNC_TOKEN }}
+        run: |
+          if [ "${{ inputs.apply }}" = "true" ]; then
+            npm run sync -- --apply
+          else
+            npm run sync -- --dry-run
+          fi
