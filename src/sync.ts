@@ -10,6 +10,10 @@ export type NormalizedLabel = {
   description: string | null;
 };
 
+function nameKey(name: string): string {
+  return name.trim().toLowerCase();
+}
+
 function normalizeColor(color: string): string {
   const c = color.trim();
   return c.startsWith("#") ? c.slice(1).toLowerCase() : c.toLowerCase();
@@ -64,7 +68,7 @@ function labelsEqual(a: NormalizedLabel, b: NormalizedLabel): boolean {
 function toMap(labels: NormalizedLabel[]): Map<string, NormalizedLabel> {
   const m = new Map<string, NormalizedLabel>();
   for (const l of labels) {
-    m.set(l.name, l);
+    m.set(nameKey(l.name), l);
   }
   return m;
 }
@@ -99,7 +103,6 @@ async function ensureLabel(
       owner: repo.owner,
       repo: repo.repo,
       name: existing.name,
-      new_name: desired.name,
       color: desired.color,
       description: desired.description ?? undefined,
     });
@@ -158,6 +161,20 @@ export async function syncLabelsToTargets(params: {
 
   const sourceLabels = await listAllLabels(params.octokit, params.config.source);
 
+  {
+    const seen = new Map<string, string>();
+    for (const l of sourceLabels) {
+      const k = nameKey(l.name);
+      const prev = seen.get(k);
+      if (prev && prev !== l.name) {
+        throw new Error(
+          `Source repo contains duplicate labels differing only by case/whitespace: '${prev}' and '${l.name}'`,
+        );
+      }
+      seen.set(k, l.name);
+    }
+  }
+
   if (deleteExtra && sourceLabels.length === 0 && !allowEmptySource) {
     throw new Error(
       "Source repo has 0 labels; refusing to run destructive sync. Add labels to source or pass --allow-empty-source.",
@@ -174,7 +191,7 @@ export async function syncLabelsToTargets(params: {
     const updates: string[] = [];
 
     for (const desired of sourceLabels) {
-      const existing = targetMap.get(desired.name);
+      const existing = targetMap.get(nameKey(desired.name));
       const res = await ensureLabel(params.octokit, target, desired, existing, params.apply);
       if (res.action === "create") {
         creates.push(res.name);
@@ -187,7 +204,7 @@ export async function syncLabelsToTargets(params: {
 
     if (deleteExtra) {
       for (const existing of targetLabels) {
-        if (!sourceMap.has(existing.name)) {
+        if (!sourceMap.has(nameKey(existing.name))) {
           await deleteLabel(params.octokit, target, existing.name, params.apply);
           deletes.push(existing.name);
         }
