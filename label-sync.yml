@@ -16,6 +16,28 @@ targets:
   - owner: tormigit
     repo: wp_seljevisitorsflags
 
+ordering:
+  applyToSource: true
+  names:
+    - "01-important"
+    - "02-idea"
+    - "03-documentation"
+    - "04-improvement"
+    - "05-not Important"
+    - "06-Wordpress demand"
+    - "07-Pro-version"
+    - "08-Milestone"
+    - "09-bug"
+    - "10-help wanted"
+    - "11-question"
+    - "12-wontfix"
+    - "13-duplicate"
+    - "20-Extratag1"
+    - "21-Extratag2"
+    - "22-Extratag3"
+    - "23-Extratag4"
+    - "24-Extratag5"
+
 options:
   deleteExtraLabels: true
   allowEmptySource: false
