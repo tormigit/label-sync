@@ -118,7 +118,12 @@ If `ordering.names` is provided:
 - If `ordering.applyToSource: true`, ordering renames are applied to the source repo too
 - Renames use GitHub's label rename API so **existing issue/PR label assignments are preserved**
 - If a repo contains **both** a base label and the prefixed label (example: both `bug` and `09-bug`), sync stops with an error to avoid splitting assignments
-- If `ordering.applyToSource: true` and a label from `ordering.names` is missing in the source repo, it will be created during an apply run (default color: `ededed`).
+- `ordering.names` does not create labels by itself; it only controls ordering/renames. If an entry is missing from the source repo, it is skipped.
+
+To delete a label everywhere:
+
+- Delete it from the **source** repo
+- Run sync with `options.deleteExtraLabels: true` (targets will delete labels not present in the source)
 
 Descriptions:
 

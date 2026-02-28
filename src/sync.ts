@@ -103,8 +103,6 @@ function toMap(labels: NormalizedLabel[]): Map<string, NormalizedLabel> {
   return m;
 }
 
- const DEFAULT_ORDERING_COLOR = "ededed";
-
 type RenameOp = { from: string; to: string };
 
 function buildOrderingMapping(orderingNames: string[]): Map<string, string> {
@@ -209,11 +207,9 @@ function computeCanonicalSourceLabelsFromOrdering(params: {
 
     const label = sourceMap.get(desiredKey) ?? sourceMap.get(baseKey);
     if (!label) {
-      ordered.push({
-        name: desiredName,
-        color: DEFAULT_ORDERING_COLOR,
-        description: derivedDescription !== null ? derivedDescription : null,
-      });
+      process.stdout.write(
+        `Source repo is missing ordering label '${desiredName}' (expected '${desiredName}' or '${baseName}'); skipping.\n`,
+      );
       continue;
     }
 
