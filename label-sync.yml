@@ -32,11 +32,6 @@ ordering:
     - "11-question"
     - "12-wontfix"
     - "13-duplicate"
-    - "20-Extratag1"
-    - "21-Extratag2"
-    - "22-Extratag3"
-    - "23-Extratag4"
-    - "24-Extratag5"
 
 options:
   deleteExtraLabels: true
