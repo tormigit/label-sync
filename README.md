@@ -12,6 +12,46 @@ Easy Sync GitHub repository labels from a canonical **source repository** to one
 Support this project: [Donate via Stripe](https://buy.stripe.com/fZuaEX1gYckd4xrcUWbQY0j)
 50% of the earnings goes to support Ukraine!
 
+## Quickstart (GitHub Actions)
+
+Recommended approach:
+
+- Make this repo a **template repository** and click **Use this template** to create your own label-sync automation repo.
+  - If you do not see the template button, **Fork** also works.
+
+## Using this repo as a template
+
+If you are the owner of this repository and you want others to easily reuse it:
+
+- GitHub -> `Settings` -> `General` -> enable **Template repository**
+
+If you are using this project for your own automation:
+
+- Click **Use this template** to create your own repo
+- Update `label-sync.yml` in your copy (source/targets/options)
+- Add the `LABEL_SYNC_TOKEN` secret in your copy
+
+Steps:
+
+1. Create your automation repo
+   - Click **Use this template** (recommended)
+
+2. Add `LABEL_SYNC_TOKEN` secret
+   - Create a GitHub PAT that can access the **source repo** and all **target repos**
+   - In your automation repo: `Settings` -> `Secrets and variables` -> `Actions` -> `New repository secret`
+   - Name it `LABEL_SYNC_TOKEN`
+
+3. Configure `label-sync.yml`
+   - Set `source` and `targets`
+   - (Optional) set `ordering.names` to enforce GitHub UI ordering
+
+4. Run the workflow
+   - `Actions` -> `Label Sync` -> `Run workflow`
+     - Set `apply=false` for dry-run
+     - Set `apply=true` to apply changes
+
+The workflow file is at `.github/workflows/label-sync.yml`.
+
 ## Setup
 
 Prerequisites:
@@ -64,7 +104,17 @@ ordering:
   names:
     - "01-important"
     - "02-idea"
-    - "20-Extratag1"
+    - "03-documentation"
+    - "04-improvement"
+    - "05-not Important"
+    - "06-Wordpress demand"
+    - "07-Pro-version"
+    - "08-Milestone"
+    - "09-bug"
+    - "10-help wanted"
+    - "11-question"
+    - "12-wontfix"
+    - "13-duplicate"
 
 options:
   deleteExtraLabels: true
@@ -110,6 +160,17 @@ The workflow expects repository secret:
 
 Note: the workflow uses `LABEL_SYNC_TOKEN` (not the built-in `GITHUB_TOKEN`) because syncing across multiple repositories requires a PAT.
 
+## Security notes for public repos
+
+- Do **not** commit tokens. Store PATs in GitHub repository secrets (like `LABEL_SYNC_TOKEN`).
+- If you make this repo public, your `label-sync.yml` contents (including your repo list) are public too.
+- Prefer least privilege for your PAT:
+  - If you only sync public repos, `public_repo` is usually sufficient.
+  - If you sync private repos, you typically need `repo`.
+- If you accept contributions:
+  - Avoid unsafe workflow patterns that could expose secrets.
+  - Consider enabling branch protection for `main`.
+
 ## Ordering + descriptions
 
 If `ordering.names` is provided:
@@ -129,6 +190,23 @@ Descriptions:
 
 - Descriptions are generated from the base name (the part after the `NN-` prefix)
 - `Extratag*` labels always get an **empty description**
+
+Default label descriptions (built-in):
+
+- `important`: High priority.
+- `idea`: New idea or proposal.
+- `documentation`: Documentation updates.
+- `improvement`: Enhancement/improvement.
+- `not important`: Low priority.
+- `wordpress demand`: WordPress-related request.
+- `pro-version`: Pro/version-related work.
+- `milestone`: Milestone tracking.
+- `bug`: Bug report.
+- `help wanted`: Help wanted.
+- `question`: Question/support.
+- `wontfix`: Won't fix.
+- `duplicate`: Duplicate.
+- `ExtratagN` (example: `Extratag1`): empty description.
 
 ## Troubleshooting
 
