@@ -1,6 +1,9 @@
 # github-label-sync
 
-Sync GitHub repository labels from a canonical **source repository** to one or more **target repositories**.
+Easy Sync GitHub repository labels from a canonical **source repository** to one or more **target repositories**.
+
+Support this project: [Donate via Stripe](https://buy.stripe.com/fZuaEX1gYckd4xrcUWbQY0j)
+50% of the earnings goes to support Ukraine!
 
 ## What it does
 
