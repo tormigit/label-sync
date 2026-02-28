@@ -12,6 +12,9 @@ Support this project: [Donate via Stripe](https://buy.stripe.com/fZuaEX1gYckd4xr
 - **Optional ordering** via numeric-prefixed label names (renames labels safely to preserve assignments)
 - **Automatic descriptions** for known base label names (with `Extratag*` kept empty)
 
+Support this project: [Donate via Stripe](https://buy.stripe.com/fZuaEX1gYckd4xrcUWbQY0j)
+50% of the earnings goes to support Ukraine!
+
 ## Setup
 
 Prerequisites:
