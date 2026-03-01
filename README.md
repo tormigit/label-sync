@@ -2,6 +2,10 @@
 
 Easy Sync GitHub repository labels from a canonical **source repository** to one or more **target repositories**.
 
+## What's new in v1.2.0
+
+- **Resolved target list shown in GitHub Actions summary**: when using `targetMode=discover` and/or `includeRepos` / `excludeRepos`, the workflow prints the final resolved target repositories list in the workflow run's **sync summary** (easy copy/paste).
+
 ## What's new in v1.1.0
 
 - **GitHub Actions run modes**: `Dry run (preview only)`, `Apply (keep changed or added labels)`, and `Apply (mirror source)`.
@@ -171,6 +175,7 @@ This repo includes a workflow at `.github/workflows/label-sync.yml`:
     - `targetMode=discover`: discover all repos owned by the user (requires a PAT that can list repos)
     - `includeRepos` / `excludeRepos`: comma-separated repo names or `owner/repo` strings
     - The workflow prints the final resolved target list in the GitHub Actions job summary.
+      - Find it at: `Actions` -> select the workflow run -> `sync` job -> **sync summary** -> **Target repositories**
 - Scheduled run: weekly (see workflow cron)
 
 Scheduled run behavior:
@@ -195,6 +200,12 @@ Notes:
 - `mode=Apply (keep changed or added labels)` does not delete labels that only exist in target repos.
 - `mode=Apply (mirror source)` deletes labels in targets that are not present in the source repo.
 - In target repos, labels `Extratag1` through `Extratag5` are treated as protected/unmanaged: they are not created, updated, renamed, or deleted by the workflow (even in delete mode).
+
+Listing resolved targets (local CLI):
+
+```bash
+npm run build --silent && node dist/index.js targets --target-mode discover
+```
 
 ## Security notes for public repos
 
