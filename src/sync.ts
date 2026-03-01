@@ -139,6 +139,7 @@ async function applyOrderingRenamesToRepo(params: {
   repo: RepoRef;
   apply: boolean;
   orderingNames: string[];
+  protectTargetLabels?: boolean;
 }): Promise<{ renames: RenameOp[] }>
 {
   buildOrderingMapping(params.orderingNames);
@@ -148,7 +149,7 @@ async function applyOrderingRenamesToRepo(params: {
   const planned: RenameOp[] = [];
 
   for (const desiredName of params.orderingNames) {
-    if (isProtectedTargetLabelName(desiredName)) {
+    if (params.protectTargetLabels && isProtectedTargetLabelName(desiredName)) {
       continue;
     }
     const desiredKey = nameKey(desiredName);
@@ -183,7 +184,7 @@ async function applyOrderingRenamesToRepo(params: {
 
   // Detect conflicts (both base and desired exist) to avoid silent assignment splits.
   for (const desiredName of params.orderingNames) {
-    if (isProtectedTargetLabelName(desiredName)) {
+    if (params.protectTargetLabels && isProtectedTargetLabelName(desiredName)) {
       continue;
     }
     const desiredKey = nameKey(desiredName);
@@ -409,6 +410,7 @@ export async function syncLabelsToTargets(params: {
         repo: target,
         apply: params.apply,
         orderingNames,
+        protectTargetLabels: true,
       });
       if (res.renames.length > 0) {
         process.stdout.write(
