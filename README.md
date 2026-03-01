@@ -2,6 +2,12 @@
 
 Easy Sync GitHub repository labels from a canonical **source repository** to one or more **target repositories**.
 
+## What's new in v1.1.0
+
+- **GitHub Actions run modes**: `Dry run (preview only)`, `Apply (keep changed or added labels)`, and `Apply (mirror source)`.
+- **Protected labels in targets**: `Extratag1` through `Extratag5` are treated as protected/unmanaged in target repos.
+- **Auto-discovery + filtering**: optionally discover all repos owned by a user (`targetMode=discover`) and filter with `includeRepos` / `excludeRepos`.
+
 ## What it does
 
 - **Sync** label name/color/description from the source repo to target repos
