@@ -81,8 +81,12 @@ export async function loadConfig(configPath: string): Promise<LabelSyncConfig> {
 
   assertRepoRef(cfg.source, "source");
 
-  if (!Array.isArray(cfg.targets) || cfg.targets.length === 0) {
-    throw new Error("targets must be a non-empty array");
+  if (!Array.isArray(cfg.targets)) {
+    cfg.targets = [];
+  }
+
+  if (!Array.isArray(cfg.targets)) {
+    throw new Error("targets must be an array");
   }
 
   cfg.targets.forEach((t, i) => assertRepoRef(t, `targets[${i}]`));

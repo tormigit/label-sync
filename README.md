@@ -160,7 +160,15 @@ This repo includes a workflow at `.github/workflows/label-sync.yml`:
   - Set `mode=Dry run (preview only)` to preview changes (no changes are made)
   - Set `mode=Apply (keep changed or added labels)` to apply changes while keeping manually added labels in target repos
   - Set `mode=Apply (mirror source)` to apply changes and delete labels in targets that are not in the source repo
+  - Target selection:
+    - `targetMode=config`: use `targets:` from `label-sync.yml`
+    - `targetMode=discover`: discover all repos owned by the user (requires a PAT that can list repos)
+    - `includeRepos` / `excludeRepos`: comma-separated repo names or `owner/repo` strings
 - Scheduled run: weekly (see workflow cron)
+
+Scheduled run behavior:
+
+- When workflow inputs are not available (scheduled runs), the workflow defaults to `targetMode=discover`.
 
 The workflow expects repository secret:
 

@@ -12,6 +12,26 @@ on:
           - "Dry run (preview only)"
           - "Apply (keep changed or added labels)"
           - "Apply (mirror source)"
+      targetMode:
+        description: "Which repositories to sync"
+        required: false
+        default: "config"
+        type: choice
+        options:
+          - config
+          - discover
+      discoverOwner:
+        description: "When targetMode=discover: discover repos owned by this user (optional; defaults to source.owner from label-sync.yml)"
+        required: false
+        default: ""
+      includeRepos:
+        description: "Optional: only include these repos (comma-separated repo names or owner/repo)"
+        required: false
+        default: ""
+      excludeRepos:
+        description: "Optional: exclude these repos (comma-separated repo names or owner/repo)"
+        required: false
+        default: ""
   schedule:
     - cron: "0 3 * * 0"
 
@@ -46,23 +66,49 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.LABEL_SYNC_TOKEN }}
         run: |
           MODE_INPUT="${{ github.event.inputs.mode }}"
+          TARGET_MODE_INPUT="${{ github.event.inputs.targetMode }}"
+          DISCOVER_OWNER_INPUT="${{ github.event.inputs.discoverOwner }}"
+          INCLUDE_REPOS_INPUT="${{ github.event.inputs.includeRepos }}"
+          EXCLUDE_REPOS_INPUT="${{ github.event.inputs.excludeRepos }}"
+          EVENT_NAME="${{ github.event_name }}"
 
           if [ -z "$MODE_INPUT" ]; then
             MODE_INPUT="Dry run (preview only)"
           fi
 
-          EXTRA_ARGS=""
-          APPLY_MODE="false"
-          if [ "$MODE_INPUT" = "Apply (keep changed or added labels)" ]; then
-            APPLY_MODE="true"
-            EXTRA_ARGS="--delete-extra false"
-          elif [ "$MODE_INPUT" = "Apply (mirror source)" ]; then
-            APPLY_MODE="true"
-            EXTRA_ARGS="--delete-extra true"
+          if [ -z "$TARGET_MODE_INPUT" ]; then
+            if [ "$EVENT_NAME" = "schedule" ]; then
+              TARGET_MODE_INPUT="discover"
+            else
+              TARGET_MODE_INPUT="config"
+            fi
           fi
 
-          if [ "$APPLY_MODE" = "true" ]; then
-            npm run sync -- --apply $EXTRA_ARGS
+          SYNC_ARGS=()
+
+          if [ "$MODE_INPUT" = "Apply (keep changed or added labels)" ]; then
+            SYNC_ARGS+=(--apply)
+            SYNC_ARGS+=(--delete-extra false)
+          elif [ "$MODE_INPUT" = "Apply (mirror source)" ]; then
+            SYNC_ARGS+=(--apply)
+            SYNC_ARGS+=(--delete-extra true)
           else
-            npm run sync -- --dry-run $EXTRA_ARGS
+            SYNC_ARGS+=(--dry-run)
           fi
+
+          if [ "$TARGET_MODE_INPUT" = "discover" ]; then
+            SYNC_ARGS+=(--target-mode discover)
+            if [ -n "$DISCOVER_OWNER_INPUT" ]; then
+              SYNC_ARGS+=(--discover-owner "$DISCOVER_OWNER_INPUT")
+            fi
+          fi
+
+          if [ -n "$INCLUDE_REPOS_INPUT" ]; then
+            SYNC_ARGS+=(--include-repos "$INCLUDE_REPOS_INPUT")
+          fi
+
+          if [ -n "$EXCLUDE_REPOS_INPUT" ]; then
+            SYNC_ARGS+=(--exclude-repos "$EXCLUDE_REPOS_INPUT")
+          fi
+
+          npm run sync -- "${SYNC_ARGS[@]}"
