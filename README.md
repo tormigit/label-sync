@@ -170,6 +170,7 @@ This repo includes a workflow at `.github/workflows/label-sync.yml`:
     - `targetMode=config`: use `targets:` from `label-sync.yml`
     - `targetMode=discover`: discover all repos owned by the user (requires a PAT that can list repos)
     - `includeRepos` / `excludeRepos`: comma-separated repo names or `owner/repo` strings
+    - The workflow prints the final resolved target list in the GitHub Actions job summary.
 - Scheduled run: weekly (see workflow cron)
 
 Scheduled run behavior:

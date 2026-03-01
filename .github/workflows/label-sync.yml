@@ -111,4 +111,34 @@ jobs:
             SYNC_ARGS+=(--exclude-repos "$EXCLUDE_REPOS_INPUT")
           fi
 
-          npm run sync -- "${SYNC_ARGS[@]}"
+          npm run build --silent
+
+          TARGETS_ARGS=()
+          if [ "$TARGET_MODE_INPUT" = "discover" ]; then
+            TARGETS_ARGS+=(--target-mode discover)
+            if [ -n "$DISCOVER_OWNER_INPUT" ]; then
+              TARGETS_ARGS+=(--discover-owner "$DISCOVER_OWNER_INPUT")
+            fi
+          fi
+          if [ -n "$INCLUDE_REPOS_INPUT" ]; then
+            TARGETS_ARGS+=(--include-repos "$INCLUDE_REPOS_INPUT")
+          fi
+          if [ -n "$EXCLUDE_REPOS_INPUT" ]; then
+            TARGETS_ARGS+=(--exclude-repos "$EXCLUDE_REPOS_INPUT")
+          fi
+
+          TARGET_LIST=$(node dist/index.js targets "${TARGETS_ARGS[@]}")
+
+          {
+            echo "### Target repositories"
+            echo
+            echo "\`targetMode\`: $TARGET_MODE_INPUT"
+            echo
+            echo "\`count\`: $(echo "$TARGET_LIST" | sed '/^$/d' | wc -l | tr -d ' ')"
+            echo
+            echo "```"
+            echo "$TARGET_LIST"
+            echo "```"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          node dist/index.js sync "${SYNC_ARGS[@]}"
