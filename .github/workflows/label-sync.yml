@@ -4,14 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Choose what to do: dry-run (preview), apply-keep-extra (keep manual labels in targets), apply-delete-extra (delete labels not in source)"
+        description: "Choose what to do"
         required: false
-        default: "dry-run"
+        default: "Dry run (preview only)"
         type: choice
         options:
-          - dry-run
-          - apply-keep-extra
-          - apply-delete-extra
+          - "Dry run (preview only)"
+          - "Apply (do NOT delete changed or added labels)"
   schedule:
     - cron: "0 3 * * 0"
 
@@ -48,17 +47,14 @@ jobs:
           MODE_INPUT="${{ github.event.inputs.mode }}"
 
           if [ -z "$MODE_INPUT" ]; then
-            MODE_INPUT="dry-run"
+            MODE_INPUT="Dry run (preview only)"
           fi
 
           EXTRA_ARGS=""
           APPLY_MODE="false"
-          if [ "$MODE_INPUT" = "apply-keep-extra" ]; then
+          if [ "$MODE_INPUT" = "Apply (do NOT delete changed or added labels)" ]; then
             APPLY_MODE="true"
             EXTRA_ARGS="--delete-extra false"
-          elif [ "$MODE_INPUT" = "apply-delete-extra" ]; then
-            APPLY_MODE="true"
-            EXTRA_ARGS="--delete-extra true"
           fi
 
           if [ "$APPLY_MODE" = "true" ]; then

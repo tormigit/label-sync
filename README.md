@@ -47,9 +47,8 @@ Steps:
 
 4. Run the workflow
    - `Actions` -> `Label Sync` -> `Run workflow`
-     - Set `mode=dry-run` to preview changes
-     - Set `mode=apply-keep-extra` to apply changes while keeping manually added labels in targets
-     - Set `mode=apply-delete-extra` to apply changes and delete labels in targets that are not in the source
+     - Set `mode=Dry run (preview only)` to preview changes
+     - Set `mode=Apply (do NOT delete changed or added labels)` to apply changes while keeping manually added labels in targets
 
 The workflow file is at `.github/workflows/label-sync.yml`.
 
@@ -157,9 +156,8 @@ npm run export -- --out labels-export.yml
 This repo includes a workflow at `.github/workflows/label-sync.yml`:
 
 - Manual run: `Actions` -> `Label Sync` -> `Run workflow`
-  - Set `mode=dry-run` to preview changes (no changes are made)
-  - Set `mode=apply-keep-extra` to apply changes while keeping manually added labels in target repos
-  - Set `mode=apply-delete-extra` to apply changes and delete labels in targets that are not in the source repo
+  - Set `mode=Dry run (preview only)` to preview changes (no changes are made)
+  - Set `mode=Apply (do NOT delete changed or added labels)` to apply changes while keeping manually added labels in target repos
 - Scheduled run: weekly (see workflow cron)
 
 The workflow expects repository secret:
@@ -170,10 +168,13 @@ Note: the workflow uses `LABEL_SYNC_TOKEN` (not the built-in `GITHUB_TOKEN`) bec
 
 Recommended usage pattern:
 
-- First cleanup run (standardize repos):
-  - `mode=apply-delete-extra`
-- Later maintenance runs (keep manual labels in targets):
-  - `mode=apply-keep-extra`
+- Apply changes (keep manual labels in targets):
+  - `mode=Apply (do NOT delete changed or added labels)`
+
+Notes:
+
+- This workflow mode does not delete labels that only exist in target repos.
+- In target repos, labels `Extratag1` through `Extratag5` are treated as protected/unmanaged: they are not created, updated, renamed, or deleted by the workflow.
 
 ## Security notes for public repos
 

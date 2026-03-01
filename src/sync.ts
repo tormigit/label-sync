@@ -10,6 +10,19 @@ export type NormalizedLabel = {
   description: string | null;
 };
 
+const PROTECTED_TARGET_BASE_LABEL_KEYS = new Set<string>([
+  nameKey("Extratag1"),
+  nameKey("Extratag2"),
+  nameKey("Extratag3"),
+  nameKey("Extratag4"),
+  nameKey("Extratag5"),
+]);
+
+function isProtectedTargetLabelName(name: string): boolean {
+  const base = orderingBaseName(name);
+  return PROTECTED_TARGET_BASE_LABEL_KEYS.has(nameKey(base));
+}
+
 function nameKey(name: string): string {
   return name.trim().toLowerCase();
 }
@@ -135,6 +148,9 @@ async function applyOrderingRenamesToRepo(params: {
   const planned: RenameOp[] = [];
 
   for (const desiredName of params.orderingNames) {
+    if (isProtectedTargetLabelName(desiredName)) {
+      continue;
+    }
     const desiredKey = nameKey(desiredName);
     const baseName = orderingBaseName(desiredName);
     const baseKey = nameKey(baseName);
@@ -167,6 +183,9 @@ async function applyOrderingRenamesToRepo(params: {
 
   // Detect conflicts (both base and desired exist) to avoid silent assignment splits.
   for (const desiredName of params.orderingNames) {
+    if (isProtectedTargetLabelName(desiredName)) {
+      continue;
+    }
     const desiredKey = nameKey(desiredName);
     const baseName = orderingBaseName(desiredName);
     const baseKey = nameKey(baseName);
@@ -405,6 +424,9 @@ export async function syncLabelsToTargets(params: {
     const updates: string[] = [];
 
     for (const desired of sourceLabels) {
+      if (isProtectedTargetLabelName(desired.name)) {
+        continue;
+      }
       const existing = targetMap.get(nameKey(desired.name));
       const res = await ensureLabel(params.octokit, target, desired, existing, params.apply);
       if (res.action === "create") {
@@ -418,6 +440,9 @@ export async function syncLabelsToTargets(params: {
 
     if (deleteExtra) {
       for (const existing of targetLabels) {
+        if (isProtectedTargetLabelName(existing.name)) {
+          continue;
+        }
         if (!sourceMap.has(nameKey(existing.name))) {
           await deleteLabel(params.octokit, target, existing.name, params.apply);
           deletes.push(existing.name);
