@@ -10,7 +10,8 @@ on:
         type: choice
         options:
           - "Dry run (preview only)"
-          - "Apply (do NOT delete changed or added labels)"
+          - "Apply (keep changed or added labels)"
+          - "Apply (delete extra labels)"
   schedule:
     - cron: "0 3 * * 0"
 
@@ -52,9 +53,12 @@ jobs:
 
           EXTRA_ARGS=""
           APPLY_MODE="false"
-          if [ "$MODE_INPUT" = "Apply (do NOT delete changed or added labels)" ]; then
+          if [ "$MODE_INPUT" = "Apply (keep changed or added labels)" ]; then
             APPLY_MODE="true"
             EXTRA_ARGS="--delete-extra false"
+          elif [ "$MODE_INPUT" = "Apply (delete extra labels)" ]; then
+            APPLY_MODE="true"
+            EXTRA_ARGS="--delete-extra true"
           fi
 
           if [ "$APPLY_MODE" = "true" ]; then
