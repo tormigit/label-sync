@@ -11,7 +11,7 @@ on:
         options:
           - "Dry run (preview only)"
           - "Apply (keep changed or added labels)"
-          - "Apply (delete extra labels)"
+          - "Apply (mirror source)"
   schedule:
     - cron: "0 3 * * 0"
 
@@ -56,7 +56,7 @@ jobs:
           if [ "$MODE_INPUT" = "Apply (keep changed or added labels)" ]; then
             APPLY_MODE="true"
             EXTRA_ARGS="--delete-extra false"
-          elif [ "$MODE_INPUT" = "Apply (delete extra labels)" ]; then
+          elif [ "$MODE_INPUT" = "Apply (mirror source)" ]; then
             APPLY_MODE="true"
             EXTRA_ARGS="--delete-extra true"
           fi

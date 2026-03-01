@@ -49,7 +49,7 @@ Steps:
    - `Actions` -> `Label Sync` -> `Run workflow`
      - Set `mode=Dry run (preview only)` to preview changes
      - Set `mode=Apply (keep changed or added labels)` to apply changes while keeping manually added labels in targets
-     - Set `mode=Apply (delete extra labels)` to apply changes and delete labels in targets that are not in the source
+     - Set `mode=Apply (mirror source)` to apply changes and delete labels in targets that are not in the source
 
 The workflow file is at `.github/workflows/label-sync.yml`.
 
@@ -159,7 +159,7 @@ This repo includes a workflow at `.github/workflows/label-sync.yml`:
 - Manual run: `Actions` -> `Label Sync` -> `Run workflow`
   - Set `mode=Dry run (preview only)` to preview changes (no changes are made)
   - Set `mode=Apply (keep changed or added labels)` to apply changes while keeping manually added labels in target repos
-  - Set `mode=Apply (delete extra labels)` to apply changes and delete labels in targets that are not in the source repo
+  - Set `mode=Apply (mirror source)` to apply changes and delete labels in targets that are not in the source repo
 - Scheduled run: weekly (see workflow cron)
 
 The workflow expects repository secret:
@@ -171,14 +171,14 @@ Note: the workflow uses `LABEL_SYNC_TOKEN` (not the built-in `GITHUB_TOKEN`) bec
 Recommended usage pattern:
 
 - First cleanup run (standardize repos):
-  - `mode=Apply (delete extra labels)`
+  - `mode=Apply (mirror source)`
 - Later maintenance runs (keep manual labels in targets):
   - `mode=Apply (keep changed or added labels)`
 
 Notes:
 
 - `mode=Apply (keep changed or added labels)` does not delete labels that only exist in target repos.
-- `mode=Apply (delete extra labels)` deletes labels in targets that are not present in the source repo.
+- `mode=Apply (mirror source)` deletes labels in targets that are not present in the source repo.
 - In target repos, labels `Extratag1` through `Extratag5` are treated as protected/unmanaged: they are not created, updated, renamed, or deleted by the workflow (even in delete mode).
 
 ## Security notes for public repos
