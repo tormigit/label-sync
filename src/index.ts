@@ -131,12 +131,29 @@ program
         throw new Error("--discover-owner is required when --target-mode=discover");
       }
 
-      const repos = await octokit.paginate(octokit.repos.listForAuthenticatedUser, {
-        per_page: 100,
-        affiliation: "owner",
-      });
+      const perPage = 100;
+      let page = 1;
+      const repos: Array<{ owner?: { login?: string | null } | null; name: string }> = [];
 
-      const discovered = (repos as Array<{ owner?: { login?: string | null } | null; name: string }>)
+      for (;;) {
+        const res = await octokit.repos.listForAuthenticatedUser({
+          per_page: perPage,
+          page,
+          affiliation: "owner",
+        });
+
+        repos.push(
+          ...(res.data as unknown as Array<{ owner?: { login?: string | null } | null; name: string }>),
+        );
+
+        if (res.data.length < perPage) {
+          break;
+        }
+
+        page += 1;
+      }
+
+      const discovered = repos
         .filter((r: { owner?: { login?: string | null } | null; name: string }) => {
           const login = r.owner?.login ?? "";
           return login.trim().toLowerCase() === discoverOwner.toLowerCase();
