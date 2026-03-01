@@ -3,19 +3,15 @@ name: Label Sync
 on:
   workflow_dispatch:
     inputs:
-      apply:
-        description: "Apply changes (true) or run dry-run (false)"
-        required: true
-        default: "false"
-      deleteExtra:
-        description: "Delete extra labels in targets: config (use label-sync.yml), true, or false (keep manual labels)"
+      mode:
+        description: "Choose what to do: dry-run (preview), apply-keep-extra (keep manual labels in targets), apply-delete-extra (delete labels not in source)"
         required: false
-        default: "config"
+        default: "dry-run"
         type: choice
         options:
-          - config
-          - "true"
-          - "false"
+          - dry-run
+          - apply-keep-extra
+          - apply-delete-extra
   schedule:
     - cron: "0 3 * * 0"
 
@@ -49,23 +45,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.LABEL_SYNC_TOKEN }}
         run: |
-          APPLY_INPUT="${{ github.event.inputs.apply }}"
-          DELETE_EXTRA_INPUT="${{ github.event.inputs.deleteExtra }}"
+          MODE_INPUT="${{ github.event.inputs.mode }}"
 
-          if [ -z "$APPLY_INPUT" ]; then
-            APPLY_INPUT="false"
-          fi
-
-          if [ -z "$DELETE_EXTRA_INPUT" ]; then
-            DELETE_EXTRA_INPUT="config"
+          if [ -z "$MODE_INPUT" ]; then
+            MODE_INPUT="dry-run"
           fi
 
           EXTRA_ARGS=""
-          if [ "$DELETE_EXTRA_INPUT" = "true" ] || [ "$DELETE_EXTRA_INPUT" = "false" ]; then
-            EXTRA_ARGS="--delete-extra $DELETE_EXTRA_INPUT"
+          APPLY_MODE="false"
+          if [ "$MODE_INPUT" = "apply-keep-extra" ]; then
+            APPLY_MODE="true"
+            EXTRA_ARGS="--delete-extra false"
+          elif [ "$MODE_INPUT" = "apply-delete-extra" ]; then
+            APPLY_MODE="true"
+            EXTRA_ARGS="--delete-extra true"
           fi
 
-          if [ "$APPLY_INPUT" = "true" ]; then
+          if [ "$APPLY_MODE" = "true" ]; then
             npm run sync -- --apply $EXTRA_ARGS
           else
             npm run sync -- --dry-run $EXTRA_ARGS

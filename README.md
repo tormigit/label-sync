@@ -47,8 +47,9 @@ Steps:
 
 4. Run the workflow
    - `Actions` -> `Label Sync` -> `Run workflow`
-     - Set `apply=false` for dry-run
-     - Set `apply=true` to apply changes
+     - Set `mode=dry-run` to preview changes
+     - Set `mode=apply-keep-extra` to apply changes while keeping manually added labels in targets
+     - Set `mode=apply-delete-extra` to apply changes and delete labels in targets that are not in the source
 
 The workflow file is at `.github/workflows/label-sync.yml`.
 
@@ -156,11 +157,9 @@ npm run export -- --out labels-export.yml
 This repo includes a workflow at `.github/workflows/label-sync.yml`:
 
 - Manual run: `Actions` -> `Label Sync` -> `Run workflow`
-  - Set `apply=false` for dry-run
-  - Set `apply=true` to apply changes
-  - Set `deleteExtra=config` to use `options.deleteExtraLabels` from `label-sync.yml`
-  - Set `deleteExtra=true` to force deleting labels in targets that are not in the source
-  - Set `deleteExtra=false` to keep manually added labels in target repos
+  - Set `mode=dry-run` to preview changes (no changes are made)
+  - Set `mode=apply-keep-extra` to apply changes while keeping manually added labels in target repos
+  - Set `mode=apply-delete-extra` to apply changes and delete labels in targets that are not in the source repo
 - Scheduled run: weekly (see workflow cron)
 
 The workflow expects repository secret:
@@ -172,11 +171,9 @@ Note: the workflow uses `LABEL_SYNC_TOKEN` (not the built-in `GITHUB_TOKEN`) bec
 Recommended usage pattern:
 
 - First cleanup run (standardize repos):
-  - `apply=true`
-  - `deleteExtra=true` (or keep `deleteExtra=config` if your config already has `deleteExtraLabels: true`)
+  - `mode=apply-delete-extra`
 - Later maintenance runs (keep manual labels in targets):
-  - `apply=true`
-  - `deleteExtra=false`
+  - `mode=apply-keep-extra`
 
 ## Security notes for public repos
 
