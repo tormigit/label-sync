@@ -127,17 +127,18 @@ jobs:
             TARGETS_ARGS+=(--exclude-repos "$EXCLUDE_REPOS_INPUT")
           fi
 
-          TARGET_LIST=$(node dist/index.js targets "${TARGETS_ARGS[@]}")
+          TARGET_LIST_FILE="$(mktemp)"
+          node dist/index.js targets "${TARGETS_ARGS[@]}" | sed '/^$/d' > "$TARGET_LIST_FILE"
 
           {
             echo "### Target repositories"
             echo
             echo "\`targetMode\`: $TARGET_MODE_INPUT"
             echo
-            echo "\`count\`: $(echo "$TARGET_LIST" | sed '/^$/d' | wc -l | tr -d ' ')"
+            echo "\`count\`: $(wc -l < "$TARGET_LIST_FILE" | tr -d ' ')"
             echo
             echo "```"
-            echo "$TARGET_LIST"
+            cat "$TARGET_LIST_FILE"
             echo "```"
           } >> "$GITHUB_STEP_SUMMARY"
 
