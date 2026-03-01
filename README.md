@@ -139,6 +139,12 @@ Apply changes:
 npm run sync -- --apply
 ```
 
+To override deletion behavior (local runs):
+
+```bash
+npm run sync -- --apply --delete-extra false
+```
+
 Export labels from the source repo:
 
 ```bash
@@ -152,6 +158,9 @@ This repo includes a workflow at `.github/workflows/label-sync.yml`:
 - Manual run: `Actions` -> `Label Sync` -> `Run workflow`
   - Set `apply=false` for dry-run
   - Set `apply=true` to apply changes
+  - Set `deleteExtra=config` to use `options.deleteExtraLabels` from `label-sync.yml`
+  - Set `deleteExtra=true` to force deleting labels in targets that are not in the source
+  - Set `deleteExtra=false` to keep manually added labels in target repos
 - Scheduled run: weekly (see workflow cron)
 
 The workflow expects repository secret:
@@ -159,6 +168,15 @@ The workflow expects repository secret:
 - `LABEL_SYNC_TOKEN`: a GitHub PAT with access to the source repo and all targets
 
 Note: the workflow uses `LABEL_SYNC_TOKEN` (not the built-in `GITHUB_TOKEN`) because syncing across multiple repositories requires a PAT.
+
+Recommended usage pattern:
+
+- First cleanup run (standardize repos):
+  - `apply=true`
+  - `deleteExtra=true` (or keep `deleteExtra=config` if your config already has `deleteExtraLabels: true`)
+- Later maintenance runs (keep manual labels in targets):
+  - `apply=true`
+  - `deleteExtra=false`
 
 ## Security notes for public repos
 

@@ -7,6 +7,15 @@ on:
         description: "Apply changes (true) or run dry-run (false)"
         required: true
         default: "false"
+      deleteExtra:
+        description: "Delete extra labels in targets: config (use label-sync.yml), true, or false (keep manual labels)"
+        required: false
+        default: "config"
+        type: choice
+        options:
+          - config
+          - "true"
+          - "false"
   schedule:
     - cron: "0 3 * * 0"
 
@@ -40,8 +49,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.LABEL_SYNC_TOKEN }}
         run: |
-          if [ "${{ inputs.apply }}" = "true" ]; then
-            npm run sync -- --apply
+          APPLY_INPUT="${{ github.event.inputs.apply }}"
+          DELETE_EXTRA_INPUT="${{ github.event.inputs.deleteExtra }}"
+
+          if [ -z "$APPLY_INPUT" ]; then
+            APPLY_INPUT="false"
+          fi
+
+          if [ -z "$DELETE_EXTRA_INPUT" ]; then
+            DELETE_EXTRA_INPUT="config"
+          fi
+
+          EXTRA_ARGS=""
+          if [ "$DELETE_EXTRA_INPUT" = "true" ] || [ "$DELETE_EXTRA_INPUT" = "false" ]; then
+            EXTRA_ARGS="--delete-extra $DELETE_EXTRA_INPUT"
+          fi
+
+          if [ "$APPLY_INPUT" = "true" ]; then
+            npm run sync -- --apply $EXTRA_ARGS
           else
-            npm run sync -- --dry-run
+            npm run sync -- --dry-run $EXTRA_ARGS
           fi
