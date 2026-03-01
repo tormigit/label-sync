@@ -137,9 +137,9 @@ jobs:
             echo
             echo "\`count\`: $(wc -l < "$TARGET_LIST_FILE" | tr -d ' ')"
             echo
-            echo "```"
+            echo '```'
             cat "$TARGET_LIST_FILE"
-            echo "```"
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
           node dist/index.js sync "${SYNC_ARGS[@]}"
