@@ -27,6 +27,22 @@ function nameKey(name: string): string {
   return name.trim().toLowerCase();
 }
 
+function repoKey(repo: RepoRef): string {
+  return `${repo.owner}/${repo.repo}`;
+}
+
+function describeGitHubError(err: unknown): string {
+  if (err && typeof err === "object") {
+    const anyErr = err as { status?: unknown; message?: unknown };
+    const status = typeof anyErr.status === "number" ? anyErr.status : undefined;
+    const message = typeof anyErr.message === "string" ? anyErr.message : undefined;
+    if (status && message) return `${status} ${message}`;
+    if (status) return String(status);
+    if (message) return message;
+  }
+  return String(err);
+}
+
 function orderingBaseName(desiredName: string): string {
   const m = /^\d{2}-(.+)$/.exec(desiredName.trim());
   return (m ? m[1] : desiredName).trim();
@@ -80,12 +96,17 @@ async function listAllLabels(octokit: Octokit, repo: RepoRef): Promise<Normalize
   const out: NormalizedLabel[] = [];
 
   for (;;) {
-    const res = await octokit.issues.listLabelsForRepo({
-      owner: repo.owner,
-      repo: repo.repo,
-      per_page: perPage,
-      page,
-    });
+    let res;
+    try {
+      res = await octokit.issues.listLabelsForRepo({
+        owner: repo.owner,
+        repo: repo.repo,
+        per_page: perPage,
+        page,
+      });
+    } catch (err: unknown) {
+      throw new Error(`${repoKey(repo)}: failed to list labels (${describeGitHubError(err)})`);
+    }
 
     const items = res.data.map(
       (l: { name: string; color: string; description: string | null }) =>
@@ -170,12 +191,18 @@ async function applyOrderingRenamesToRepo(params: {
     planned.push({ from: baseLabel.name, to: desiredName });
 
     if (params.apply) {
-      await params.octokit.issues.updateLabel({
-        owner: params.repo.owner,
-        repo: params.repo.repo,
-        name: baseLabel.name,
-        new_name: desiredName,
-      });
+      try {
+        await params.octokit.issues.updateLabel({
+          owner: params.repo.owner,
+          repo: params.repo.repo,
+          name: baseLabel.name,
+          new_name: desiredName,
+        });
+      } catch (err: unknown) {
+        throw new Error(
+          `${repoKey(params.repo)}: failed to rename label '${baseLabel.name}' -> '${desiredName}' (${describeGitHubError(err)})`,
+        );
+      }
 
       labelMap.delete(baseKey);
       labelMap.set(desiredKey, { ...baseLabel, name: desiredName });
@@ -259,13 +286,19 @@ async function ensureLabel(
 {
   if (!existing) {
     if (apply) {
-      await octokit.issues.createLabel({
-        owner: repo.owner,
-        repo: repo.repo,
-        name: desired.name,
-        color: desired.color,
-        description: desired.description ?? undefined,
-      });
+      try {
+        await octokit.issues.createLabel({
+          owner: repo.owner,
+          repo: repo.repo,
+          name: desired.name,
+          color: desired.color,
+          description: desired.description ?? undefined,
+        });
+      } catch (err: unknown) {
+        throw new Error(
+          `${repoKey(repo)}: failed to create label '${desired.name}' (${describeGitHubError(err)})`,
+        );
+      }
     }
     return { action: "create", name: desired.name };
   }
@@ -275,13 +308,19 @@ async function ensureLabel(
   }
 
   if (apply) {
-    await octokit.issues.updateLabel({
-      owner: repo.owner,
-      repo: repo.repo,
-      name: existing.name,
-      color: desired.color,
-      description: desired.description ?? undefined,
-    });
+    try {
+      await octokit.issues.updateLabel({
+        owner: repo.owner,
+        repo: repo.repo,
+        name: existing.name,
+        color: desired.color,
+        description: desired.description ?? undefined,
+      });
+    } catch (err: unknown) {
+      throw new Error(
+        `${repoKey(repo)}: failed to update label '${existing.name}' (${describeGitHubError(err)})`,
+      );
+    }
   }
 
   return { action: "update", name: desired.name };
@@ -297,11 +336,15 @@ async function deleteLabel(
     return;
   }
 
-  await octokit.issues.deleteLabel({
-    owner: repo.owner,
-    repo: repo.repo,
-    name,
-  });
+  try {
+    await octokit.issues.deleteLabel({
+      owner: repo.owner,
+      repo: repo.repo,
+      name,
+    });
+  } catch (err: unknown) {
+    throw new Error(`${repoKey(repo)}: failed to delete label '${name}' (${describeGitHubError(err)})`);
+  }
 }
 
 export async function exportLabelsFromSource(params: {
