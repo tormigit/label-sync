@@ -1,5 +1,6 @@
 # label-sync
 
+Stage: Maintenance
 Health: yellow
 Version: 1.2.0
 Summary: GitHub Action that copies labels from this repo to the repos listed in label-sync.yml.
