@@ -4,9 +4,7 @@ source:
 
 targets:
   - owner: tormigit
-    repo: seljeDrive-Google-Drive-Connector-for-WordPress
-  - owner: tormigit
-    repo: seljeEmail-Contract-Hub
+    repo: seljeDrive-Document-Library-for-Google-Drive
   - owner: tormigit
     repo: seljeDashboard
   - owner: tormigit
@@ -14,7 +12,7 @@ targets:
   - owner: tormigit
     repo: sMetaReporter
   - owner: tormigit
-    repo: wp_seljevisitorsflags
+    repo: seljevisitorsflags
   - owner: tormigit
     repo: League4Friends
 
